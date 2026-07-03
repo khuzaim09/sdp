@@ -1,0 +1,40 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    project.ext {
+        compileSdkVersion = 36
+        minSdkVersion = 24
+        targetSdkVersion = 36
+    }
+}
+
+class FlutterSDKMock {
+    int compileSdkVersion = 36
+    int minSdkVersion = 24
+    int targetSdkVersion = 36
+    String ndkVersion = "25.1.8937393"
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+
+subprojects {
+    project.plugins.withId("com.android.library") {
+        project.android.extensions.create("flutter", FlutterSDKMock)
+        project.android {
+            compileSdkVersion 36
+            defaultConfig {
+                minSdkVersion 24
+                targetSdkVersion 36
+            }
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
