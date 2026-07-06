@@ -181,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       MaterialPageRoute(builder: (_) => const DashboardScreen()),
                                     );
                                   } else {
-                                    _showError(tr('invalid_credentials'));
+                                    _showError(tr(authProvider.errorMessage ?? 'invalid_credentials'));
                                   }
                                 }
                               },

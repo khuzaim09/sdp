@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     deletedAt: { type: Date, default: null },
   },
-  { timestamps: true }
+  { timestamps: true, collection: 'create account' }
 );
 
 userSchema.index({ role: 1 });

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../widgets/language_toggle.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -10,9 +11,11 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LanguageProvider>(
-      builder: (context, langProvider, child) {
+    return Consumer2<LanguageProvider, AuthProvider>(
+      builder: (context, langProvider, authProvider, child) {
         final tr = langProvider.tr;
+        final user = authProvider.currentUser;
+
         return Scaffold(
           body: ListView(
             padding: const EdgeInsets.all(24),
@@ -23,6 +26,39 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               
+              // Profile Section
+              if (user != null) ...[
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: AppTheme.primaryColor,
+                      child: Text(
+                        user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
+                        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.name,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            user.email,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.textSecondaryColor),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+              ],
+
               // Language Setting
               ListTile(
                 title: Text(tr('language')),

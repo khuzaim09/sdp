@@ -6,8 +6,9 @@ import '../../models/subscription_plan.dart';
 import '../../widgets/custom_button.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
+import 'package:image_picker/image_picker.dart';
 import '../auth/login_screen.dart';
-import 'edit_profile_screen.dart';
+
 import 'notifications_settings_screen.dart';
 import 'security_settings_screen.dart';
 import 'help_support_screen.dart';
@@ -64,21 +65,99 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 // Avatar
                 Center(
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      gradient: AppTheme.primaryGradient,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryColor.withOpacity(0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryColor.withOpacity(0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: const Icon(Icons.person, size: 50, color: Colors.white),
+                        child: user?.avatarUrl != null && user!.avatarUrl.isNotEmpty
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Image.network(
+                                  user.avatarUrl,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 50, color: Colors.white),
+                                ),
+                              )
+                            : const Icon(Icons.person, size: 50, color: Colors.white),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: authProvider.isLoading
+                              ? null
+                              : () async {
+                                  try {
+                                    final picker = ImagePicker();
+                                    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                                    if (pickedFile != null && context.mounted) {
+                                      final success = await authProvider.updateProfileImage(pickedFile.path);
+                                      if (!success && context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(authProvider.errorMessage ?? 'Failed to upload image', style: const TextStyle(color: Colors.white)),
+                                            backgroundColor: AppTheme.errorColor,
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: const Text('Please fully STOP and RESTART the app to load the new image gallery package.', style: TextStyle(color: Colors.white)),
+                                          backgroundColor: AppTheme.errorColor,
+                                          behavior: SnackBarBehavior.floating,
+                                          duration: const Duration(seconds: 4),
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppTheme.primaryColor, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: authProvider.isLoading
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryColor),
+                                  )
+                                : const Icon(
+                                    Icons.edit,
+                                    size: 16,
+                                    color: AppTheme.primaryColor,
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ).animate().scale(duration: 400.ms).fadeIn(),
 
@@ -162,9 +241,7 @@ class ProfileScreen extends StatelessWidget {
 
                 const SizedBox(height: 32),
 
-                _buildListTile(context, icon: Icons.person_outline, title: tr('edit_profile'), delay: 400, onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen()));
-                }),
+
                 _buildListTile(context, icon: Icons.language, title: tr('language'), subtitle: langProvider.isUrdu ? 'اردو' : 'English', delay: 500, onTap: () {
                   langProvider.toggleLanguage();
                 }),

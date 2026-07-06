@@ -32,20 +32,27 @@ class HomeTab extends StatelessWidget {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${tr('hello')}, $userName 👋',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        const SizedBox(height: 4),
-                        _buildPlanBadge(context, user),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${tr('hello')}, $userName',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildPlanBadge(context, user),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 16),
                     _buildAvatar(context),
                   ],
                 ).animate().slideY(begin: -0.2, duration: 400.ms).fadeIn(),
@@ -77,7 +84,10 @@ class HomeTab extends StatelessWidget {
                           children: [
                             Text(
                               tr('marketing_campaign_desc'),
-                              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 12),
                             ElevatedButton(
@@ -85,10 +95,14 @@ class HomeTab extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 foregroundColor: AppTheme.primaryColor,
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
                               ),
-                              child: Text(tr('try_ai_wizard'), style: const TextStyle(fontWeight: FontWeight.bold)),
+                              child: Text(tr('try_ai_wizard'),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),
@@ -105,16 +119,23 @@ class HomeTab extends StatelessWidget {
                           'assets/mainlogo.jpeg',
                           width: 48,
                           height: 48,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.hub, size: 40, color: Colors.white),
+                          errorBuilder: (_, __, ___) => const Icon(Icons.hub,
+                              size: 40, color: Colors.white),
                         ),
                       ),
                     ],
                   ),
-                ).animate().scale(duration: 500.ms, delay: 100.ms).fadeIn(delay: 100.ms),
+                )
+                    .animate()
+                    .scale(duration: 500.ms, delay: 100.ms)
+                    .fadeIn(delay: 100.ms),
                 const SizedBox(height: 32),
                 Text(
                   tr('marketing_tools'),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ).animate().fadeIn(delay: 200.ms),
                 const SizedBox(height: 16),
                 GridView.count(
@@ -128,31 +149,52 @@ class HomeTab extends StatelessWidget {
                       context,
                       title: tr('branding_tools'),
                       icon: Icons.palette_outlined,
-                      colors: [const Color(0xFF7C4DFF), const Color(0xFFB388FF)],
+                      colors: [
+                        const Color(0xFF7C4DFF),
+                        const Color(0xFFB388FF)
+                      ],
                       delay: 300,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BrandingScreen())),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const BrandingScreen())),
                     ),
                     _buildToolCard(
                       context,
                       title: tr('social_automation'),
                       icon: Icons.share_outlined,
-                      colors: [const Color(0xFF2196F3), const Color(0xFF64B5F6)],
+                      colors: [
+                        const Color(0xFF2196F3),
+                        const Color(0xFF64B5F6)
+                      ],
                       delay: 400,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SocialScreen())),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const SocialScreen())),
                     ),
                     _buildToolCard(
                       context,
                       title: tr('website_builder'),
                       icon: Icons.web_outlined,
-                      colors: [const Color(0xFF009688), const Color(0xFF4DB6AC)],
+                      colors: [
+                        const Color(0xFF009688),
+                        const Color(0xFF4DB6AC)
+                      ],
                       delay: 500,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WebsiteScreen())),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const WebsiteScreen())),
                     ),
                     _buildToolCard(
                       context,
                       title: tr('analytics'),
                       icon: Icons.analytics_outlined,
-                      colors: [const Color(0xFFFF9800), const Color(0xFFFFB74D)],
+                      colors: [
+                        const Color(0xFFFF9800),
+                        const Color(0xFFFFB74D)
+                      ],
                       delay: 600,
                       onTap: () {},
                     ),
@@ -208,7 +250,8 @@ class HomeTab extends StatelessWidget {
     );
   }
 
-  Widget _buildRemainingDaysCard(BuildContext context, String Function(String) tr, UserModel? user) {
+  Widget _buildRemainingDaysCard(
+      BuildContext context, String Function(String) tr, UserModel? user) {
     if (user == null) return const SizedBox.shrink();
 
     final plan = SubscriptionPlan.allPlans.firstWhere(
@@ -225,13 +268,15 @@ class HomeTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.1)),
+        border:
+            Border.all(color: Theme.of(context).dividerColor.withOpacity(0.1)),
       ),
       child: Row(
         children: [
           Icon(
             Icons.timer_outlined,
-            color: remainingDays < 3 ? AppTheme.errorColor : AppTheme.successColor,
+            color:
+                remainingDays < 3 ? AppTheme.errorColor : AppTheme.successColor,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -240,12 +285,17 @@ class HomeTab extends StatelessWidget {
               children: [
                 Text(
                   tr('subscription_plans'),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 14),
                 ),
                 Text(
-                  remainingDays <= 0 ? 'Plan Expired' : '$remainingDays ${tr('remaining_days')}',
+                  remainingDays <= 0
+                      ? 'Plan Expired'
+                      : '$remainingDays ${tr('remaining_days')}',
                   style: TextStyle(
-                    color: remainingDays < 3 ? AppTheme.errorColor : Theme.of(context).textTheme.bodySmall?.color,
+                    color: remainingDays < 3
+                        ? AppTheme.errorColor
+                        : Theme.of(context).textTheme.bodySmall?.color,
                     fontSize: 12,
                   ),
                 ),
@@ -293,7 +343,10 @@ class HomeTab extends StatelessWidget {
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [colors[0].withOpacity(0.15), colors[1].withOpacity(0.08)],
+                  colors: [
+                    colors[0].withOpacity(0.15),
+                    colors[1].withOpacity(0.08)
+                  ],
                 ),
                 shape: BoxShape.circle,
               ),
@@ -308,8 +361,9 @@ class HomeTab extends StatelessWidget {
           ],
         ),
       ),
-    ).animate().scale(duration: 400.ms, delay: delay.ms).fadeIn(delay: delay.ms);
+    )
+        .animate()
+        .scale(duration: 400.ms, delay: delay.ms)
+        .fadeIn(delay: delay.ms);
   }
 }
-
-

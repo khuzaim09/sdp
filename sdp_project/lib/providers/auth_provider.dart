@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../models/user_model.dart';
 import '../models/subscription_plan.dart';
+import '../services/api_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   UserModel? _currentUser;
@@ -76,10 +77,18 @@ class AuthProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('session_token');
-      final email = prefs.getString('user_email');
-      if (token != null && email != null && _isTokenValid(token)) {
-        if (_registeredUsers.containsKey(email)) {
-          _currentUser = _registeredUsers[email]!.copyWith(sessionToken: token);
+      if (token != null) {
+        final response = await ApiService.getProfile();
+        if (response['success'] == true) {
+          final userData = response['data'];
+          _currentUser = UserModel(
+            id: userData['user_id'] ?? _uuid.v4(),
+            name: userData['name'] ?? 'User',
+            email: userData['email'] ?? '',
+            planId: userData['plan'] ?? 'free_trial',
+            avatarUrl: userData['profile_image'] ?? '',
+            sessionToken: token,
+          );
         }
       }
     } catch (_) {
@@ -100,6 +109,7 @@ class AuthProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('session_token');
     await prefs.remove('user_email');
+    await ApiService.clearToken();
   }
 
   /// Register a new user
@@ -112,42 +122,85 @@ class AuthProvider extends ChangeNotifier {
     _setLoading(true);
     _errorMessage = null;
 
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final response = await ApiService.signup(
+        name: name,
+        email: email.toLowerCase(),
+        password: password,
+      );
 
-    // Check if email is already registered
-    if (_registeredUsers.containsKey(email.toLowerCase())) {
-      _errorMessage = 'email_already_exists';
+      final userData = response['data']['user'];
+      final sessionToken = response['data']['token'];
+
+      final user = UserModel(
+        id: userData['user_id'] ?? _uuid.v4(),
+        name: userData['name'] ?? name,
+        email: userData['email'] ?? email.toLowerCase(),
+        planId: userData['plan'] ?? 'free_trial',
+        avatarUrl: userData['profileImage'] ?? '',
+        sessionToken: sessionToken,
+        sessionCreatedAt: DateTime.now(),
+        planCreatedAt: DateTime.now(),
+      );
+
+      _currentUser = user;
+      await _saveSession(email.toLowerCase(), sessionToken);
+
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
       _setLoading(false);
       return false;
     }
+  }
 
-    final hashedPassword = _hashPassword(password);
-    final sessionToken = _generateSessionToken(email);
-    final userId = _uuid.v4();
+  /// Upgrade subscription plan
+  Future<bool> upgradeSubscription(String planId) async {
+    _setLoading(true);
+    _errorMessage = null;
 
-    final user = UserModel(
-      id: userId,
-      name: name,
-      email: email.toLowerCase(),
-      planId: planId,
-      avatarUrl: '',
-      sessionToken: sessionToken,
-      sessionCreatedAt: DateTime.now(),
-      planCreatedAt: DateTime.now(),
-      passwordHash: hashedPassword,
-    );
+    try {
+      final response = await ApiService.upgradeSubscription(planType: planId);
+      
+      if (response['success'] == true) {
+        if (_currentUser != null) {
+          _currentUser = _currentUser!.copyWith(planId: planId);
+        }
+        notifyListeners();
+        _setLoading(false);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+      return false;
+    }
+  }
 
-    // Store user in "database"
-    _registeredUsers[email.toLowerCase()] = user;
+  /// Update Profile Image
+  Future<bool> updateProfileImage(String imagePath) async {
+    _setLoading(true);
+    _errorMessage = null;
 
-    // Invalidate any previous sessions for this user
-    _activeSessions[email.toLowerCase()] = sessionToken;
-
-    _currentUser = user;
-    await _saveSession(email.toLowerCase(), sessionToken);
-
-    _setLoading(false);
-    return true;
+    try {
+      final response = await ApiService.updateProfileImage(imagePath: imagePath);
+      if (response['success'] == true) {
+        if (_currentUser != null) {
+          final imageUrl = response['data']['profileImage'] ?? '';
+          _currentUser = _currentUser!.copyWith(avatarUrl: imageUrl);
+          notifyListeners();
+        }
+        _setLoading(false);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+      return false;
+    }
   }
 
   /// Login with email/username and password
@@ -155,46 +208,36 @@ class AuthProvider extends ChangeNotifier {
     _setLoading(true);
     _errorMessage = null;
 
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final response = await ApiService.login(
+        email: emailOrUsername.trim().toLowerCase(),
+        password: password,
+      );
 
-    final email = emailOrUsername.trim().toLowerCase();
-    final sessionToken = _generateSessionToken(email);
+      final userData = response['data']['user'];
+      final sessionToken = response['data']['token'];
 
-    // Check if user already exists
-    UserModel? user = _registeredUsers[email];
-
-    if (user == null) {
-      // Auto-create user with any email/password (FYP demo mode)
-      final hashedPassword = _hashPassword(password);
-      final userId = _uuid.v4();
-      // Extract name from email (before @)
-      final name = email.contains('@') ? email.split('@').first : email;
-
-      user = UserModel(
-        id: userId,
-        name: name[0].toUpperCase() + name.substring(1),
-        email: email,
-        planId: 'basic',
-        avatarUrl: '',
+      final user = UserModel(
+        id: userData['user_id'] ?? _uuid.v4(),
+        name: userData['name'] ?? 'User',
+        email: userData['email'] ?? emailOrUsername.toLowerCase(),
+        planId: userData['plan'] ?? 'free_trial',
+        avatarUrl: userData['profileImage'] ?? '',
         sessionToken: sessionToken,
         sessionCreatedAt: DateTime.now(),
         planCreatedAt: DateTime.now(),
-        passwordHash: hashedPassword,
       );
 
-      _registeredUsers[email] = user;
+      _currentUser = user;
+      await _saveSession(emailOrUsername.trim().toLowerCase(), sessionToken);
+
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+      return false;
     }
-
-    // Create session and log in
-    _activeSessions[email] = sessionToken;
-    _currentUser = user.copyWith(
-      sessionToken: sessionToken,
-      sessionCreatedAt: DateTime.now(),
-    );
-    await _saveSession(email, sessionToken);
-
-    _setLoading(false);
-    return true;
   }
 
   /// Validate current session (prevents credential sharing)

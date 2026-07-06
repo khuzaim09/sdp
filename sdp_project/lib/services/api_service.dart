@@ -2,9 +2,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'dart:io' show Platform;
+
 class ApiService {
-  // Change this to your Render URL after deployment
-  static const String baseUrl = 'http://localhost:3000';
+  // Use a public tunnel to completely bypass local network restrictions!
+  static String get baseUrl {
+    return 'https://sjhpb-153-117-47-57.free.pinggy.net';
+  }
 
   static Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -33,7 +37,14 @@ class ApiService {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return body;
     } else {
-      throw Exception(body['message'] ?? 'Something went wrong');
+      String errorMessage = body['message'] ?? 'Something went wrong';
+      if (body['errors'] != null && body['errors'] is List) {
+        final errorDetails = (body['errors'] as List)
+            .map((e) => '${e['field']}: ${e['message']}')
+            .join(', ');
+        errorMessage += ' ($errorDetails)';
+      }
+      throw Exception(errorMessage);
     }
   }
 
@@ -99,10 +110,23 @@ class ApiService {
   static Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
     final token = await _getToken();
     final response = await http.put(
-      Uri.parse('$baseUrl/auth/profile'),
+      Uri.parse('$baseUrl/user/profile'),
       headers: _headers(token: token),
       body: jsonEncode(data),
     );
+    return _handleResponse(response);
+  }
+
+  static Future<Map<String, dynamic>> updateProfileImage({required String imagePath}) async {
+    final token = await _getToken();
+    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/user/upload-image'));
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+    request.files.add(await http.MultipartFile.fromPath('profileImage', imagePath));
+    
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
     return _handleResponse(response);
   }
 
@@ -373,6 +397,19 @@ class ApiService {
     final response = await http.get(
       Uri.parse('$baseUrl/logo/my-logos'),
       headers: _headers(token: token),
+    );
+    return _handleResponse(response);
+  }
+
+  // ================= SUBSCRIPTION =================
+  static Future<Map<String, dynamic>> upgradeSubscription({required String planType}) async {
+    final token = await _getToken();
+    final response = await http.post(
+      Uri.parse('$baseUrl/subscription/upgrade'),
+      headers: _headers(token: token),
+      body: jsonEncode({
+        'plan_type': planType,
+      }),
     );
     return _handleResponse(response);
   }

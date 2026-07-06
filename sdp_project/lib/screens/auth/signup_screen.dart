@@ -306,23 +306,61 @@ class _SignupScreenState extends State<SignupScreen> {
 
                         const SizedBox(height: 32),
 
-                        // Continue Button -> goes to Subscription Selection
-                        CustomButton(
-                          text: tr('continue_btn'),
-                          icon: Icons.arrow_forward,
-                          onPressed: () {
-                            if (_validateForm(tr)) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => SubscriptionSelectionScreen(
-                                    userName: _nameController.text.trim(),
-                                    userEmail: _emailController.text.trim(),
-                                    userPassword: _passwordController.text,
-                                  ),
-                                ),
-                              );
-                            }
+                        // Continue Button -> Hits API and goes to Dashboard
+                        Consumer<AuthProvider>(
+                          builder: (context, authProvider, child) {
+                            return CustomButton(
+                              text: tr('continue_btn'),
+                              icon: Icons.arrow_forward,
+                              isLoading: authProvider.isLoading,
+                              onPressed: () async {
+                                if (_validateForm(tr)) {
+                                  final success = await authProvider.register(
+                                    name: _nameController.text.trim(),
+                                    email: _emailController.text.trim(),
+                                    password: _passwordController.text,
+                                    planId: 'free_trial',
+                                  );
+
+                                  if (context.mounted) {
+                                    if (success) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            tr('account_created') ?? 'Account Created!',
+                                            style: const TextStyle(color: Colors.white),
+                                          ),
+                                          backgroundColor: AppTheme.successColor,
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => SubscriptionSelectionScreen(
+                                            userName: _nameController.text.trim(),
+                                            userEmail: _emailController.text.trim(),
+                                            userPassword: _passwordController.text,
+                                          ),
+                                        ),
+                                        (route) => false,
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            tr(authProvider.errorMessage ?? 'fill_all_fields'),
+                                            style: const TextStyle(color: Colors.white),
+                                          ),
+                                          backgroundColor: AppTheme.errorColor,
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                }
+                              },
+                            );
                           },
                         ).animate().scale(duration: 400.ms, delay: 500.ms).fadeIn(),
 

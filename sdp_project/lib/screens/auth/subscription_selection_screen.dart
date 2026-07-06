@@ -144,45 +144,43 @@ class _SubscriptionSelectionScreenState extends State<SubscriptionSelectionScree
                                 return;
                               }
 
-                              // Register user with selected plan
-                              final success = await authProvider.register(
-                                name: widget.userName,
-                                email: widget.userEmail,
-                                password: widget.userPassword,
-                                planId: _selectedPlanId!,
-                              );
-
-                              if (context.mounted) {
-                                if (success) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        tr('account_created'),
-                                        style: const TextStyle(color: Colors.white),
+                              if (_selectedPlanId != 'free_trial') {
+                                final success = await authProvider.upgradeSubscription(_selectedPlanId!);
+                                if (!success) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          tr(authProvider.errorMessage ?? 'something_went_wrong') ?? 'Failed to upgrade plan',
+                                          style: const TextStyle(color: Colors.white),
+                                        ),
+                                        backgroundColor: AppTheme.errorColor,
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                       ),
-                                      backgroundColor: AppTheme.successColor,
-                                      behavior: SnackBarBehavior.floating,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    ),
-                                  );
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => const DashboardScreen()),
-                                    (route) => false,
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        tr(authProvider.errorMessage ?? 'fill_all_fields'),
-                                        style: const TextStyle(color: Colors.white),
-                                      ),
-                                      backgroundColor: AppTheme.errorColor,
-                                      behavior: SnackBarBehavior.floating,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    ),
-                                  );
+                                    );
+                                  }
+                                  return;
                                 }
+                              }
+                              
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      tr('plan_selected') ?? 'Subscription plan selected!',
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: AppTheme.successColor,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                );
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const DashboardScreen()),
+                                  (route) => false,
+                                );
                               }
                             },
                           );
