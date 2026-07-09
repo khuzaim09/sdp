@@ -9,7 +9,6 @@ import '../../providers/theme_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../auth/login_screen.dart';
 
-import 'notifications_settings_screen.dart';
 import 'security_settings_screen.dart';
 import 'help_support_screen.dart';
 import '../../providers/language_provider.dart';
@@ -50,7 +49,9 @@ class ProfileScreen extends StatelessWidget {
               Consumer<ThemeProvider>(
                 builder: (context, themeProvider, child) {
                   return IconButton(
-                    icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+                    icon: Icon(themeProvider.isDarkMode
+                        ? Icons.light_mode
+                        : Icons.dark_mode),
                     onPressed: () {
                       themeProvider.toggleTheme();
                     },
@@ -81,7 +82,8 @@ class ProfileScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: user?.avatarUrl != null && user!.avatarUrl.isNotEmpty
+                        child: user?.avatarUrl != null &&
+                                user!.avatarUrl.isNotEmpty
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(50),
                                 child: Image.network(
@@ -89,10 +91,13 @@ class ProfileScreen extends StatelessWidget {
                                   width: 100,
                                   height: 100,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 50, color: Colors.white),
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(Icons.person,
+                                          size: 50, color: Colors.white),
                                 ),
                               )
-                            : const Icon(Icons.person, size: 50, color: Colors.white),
+                            : const Icon(Icons.person,
+                                size: 50, color: Colors.white),
                       ),
                       Positioned(
                         bottom: 0,
@@ -103,14 +108,22 @@ class ProfileScreen extends StatelessWidget {
                               : () async {
                                   try {
                                     final picker = ImagePicker();
-                                    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                                    final pickedFile = await picker.pickImage(
+                                        source: ImageSource.gallery);
                                     if (pickedFile != null && context.mounted) {
-                                      final success = await authProvider.updateProfileImage(pickedFile.path);
+                                      final success = await authProvider
+                                          .updateProfileImage(pickedFile.path);
                                       if (!success && context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           SnackBar(
-                                            content: Text(authProvider.errorMessage ?? 'Failed to upload image', style: const TextStyle(color: Colors.white)),
-                                            backgroundColor: AppTheme.errorColor,
+                                            content: Text(
+                                                authProvider.errorMessage ??
+                                                    'Failed to upload image',
+                                                style: const TextStyle(
+                                                    color: Colors.white)),
+                                            backgroundColor:
+                                                AppTheme.errorColor,
                                             behavior: SnackBarBehavior.floating,
                                           ),
                                         );
@@ -118,9 +131,13 @@ class ProfileScreen extends StatelessWidget {
                                     }
                                   } catch (e) {
                                     if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         SnackBar(
-                                          content: const Text('Please fully STOP and RESTART the app to load the new image gallery package.', style: TextStyle(color: Colors.white)),
+                                          content: const Text(
+                                              'Please fully STOP and RESTART the app to load the new image gallery package.',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
                                           backgroundColor: AppTheme.errorColor,
                                           behavior: SnackBarBehavior.floating,
                                           duration: const Duration(seconds: 4),
@@ -134,7 +151,8 @@ class ProfileScreen extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Theme.of(context).cardColor,
                               shape: BoxShape.circle,
-                              border: Border.all(color: AppTheme.primaryColor, width: 2),
+                              border: Border.all(
+                                  color: AppTheme.primaryColor, width: 2),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.1),
@@ -147,7 +165,9 @@ class ProfileScreen extends StatelessWidget {
                                 ? const SizedBox(
                                     width: 16,
                                     height: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryColor),
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppTheme.primaryColor),
                                   )
                                 : const Icon(
                                     Icons.edit,
@@ -165,15 +185,26 @@ class ProfileScreen extends StatelessWidget {
 
                 Text(
                   user?.name ?? 'Guest User',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-                ).animate().slideY(begin: 0.2, duration: 400.ms, delay: 100.ms).fadeIn(),
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                )
+                    .animate()
+                    .slideY(begin: 0.2, duration: 400.ms, delay: 100.ms)
+                    .fadeIn(),
 
                 const SizedBox(height: 4),
 
                 Text(
                   user?.email ?? 'Not logged in',
-                  style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color, fontSize: 16),
-                ).animate().slideY(begin: 0.2, duration: 400.ms, delay: 200.ms).fadeIn(),
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                      fontSize: 16),
+                )
+                    .animate()
+                    .slideY(begin: 0.2, duration: 400.ms, delay: 200.ms)
+                    .fadeIn(),
 
                 const SizedBox(height: 32),
 
@@ -200,16 +231,22 @@ class ProfileScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(tr('choose_plan'), style: const TextStyle(color: Colors.white70, fontSize: 16)),
+                          Text(tr('choose_plan'),
+                              style: const TextStyle(
+                                  color: Colors.white70, fontSize: 16)),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               _getPlanName(user?.planId).toUpperCase(),
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12),
                             ),
                           ),
                         ],
@@ -220,7 +257,10 @@ class ProfileScreen extends StatelessWidget {
                         children: [
                           Text(
                             _getPlanPrice(user?.planId),
-                            style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -231,28 +271,54 @@ class ProfileScreen extends StatelessWidget {
                           backgroundColor: Colors.white,
                           foregroundColor: AppTheme.primaryColor,
                           minimumSize: const Size(double.infinity, 48),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: Text(tr('upgrade_plan'), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        child: Text(tr('upgrade_plan'),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
-                ).animate().scale(duration: 400.ms, delay: 300.ms).fadeIn(delay: 300.ms),
+                )
+                    .animate()
+                    .scale(duration: 400.ms, delay: 300.ms)
+                    .fadeIn(delay: 300.ms),
 
                 const SizedBox(height: 32),
 
-
-                _buildListTile(context, icon: Icons.language, title: tr('language'), subtitle: langProvider.isUrdu ? 'اردو' : 'English', delay: 500, onTap: () {
+                if (user != null)
+                  _buildListTile(context,
+                      icon: Icons.person_outline,
+                      title: 'Edit Name',
+                      delay: 400, onTap: () {
+                    _showEditProfileDialog(context, user.name, authProvider);
+                  }),
+                _buildListTile(context,
+                    icon: Icons.language,
+                    title: tr('language'),
+                    subtitle: langProvider.isUrdu ? 'اردو' : 'English',
+                    delay: 500, onTap: () {
                   langProvider.toggleLanguage();
                 }),
-                _buildListTile(context, icon: Icons.notifications_outlined, title: tr('notifications'), delay: 600, onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsSettingsScreen()));
+
+                _buildListTile(context,
+                    icon: Icons.security_outlined,
+                    title: tr('security'),
+                    delay: 700, onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const SecuritySettingsScreen()));
                 }),
-                _buildListTile(context, icon: Icons.security_outlined, title: tr('security'), delay: 700, onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const SecuritySettingsScreen()));
-                }),
-                _buildListTile(context, icon: Icons.help_outline, title: tr('help_support'), delay: 800, onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen()));
+                _buildListTile(context,
+                    icon: Icons.help_outline,
+                    title: tr('help_support'),
+                    delay: 800, onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const HelpSupportScreen()));
                 }),
 
                 const SizedBox(height: 32),
@@ -281,7 +347,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildListTile(BuildContext context, {required IconData icon, required String title, String? subtitle, required int delay, required VoidCallback onTap}) {
+  Widget _buildListTile(BuildContext context,
+      {required IconData icon,
+      required String title,
+      String? subtitle,
+      required int delay,
+      required VoidCallback onTap}) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Container(
@@ -293,8 +364,70 @@ class ProfileScreen extends StatelessWidget {
         child: Icon(icon, color: AppTheme.primaryColor),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      trailing: Icon(Icons.chevron_right, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
+      trailing: Icon(Icons.chevron_right,
+          color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
       onTap: onTap,
-    ).animate().slideX(begin: 0.1, duration: 300.ms, delay: delay.ms).fadeIn(delay: delay.ms);
+    )
+        .animate()
+        .slideX(begin: 0.1, duration: 300.ms, delay: delay.ms)
+        .fadeIn(delay: delay.ms);
+  }
+
+  void _showEditProfileDialog(
+      BuildContext context, String currentName, AuthProvider authProvider) {
+    final nameController = TextEditingController(text: currentName);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text('Edit Name'),
+          content: TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              labelText: 'Name',
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final newName = nameController.text.trim();
+                if (newName.isNotEmpty && newName != currentName) {
+                  Navigator.pop(context);
+                  final success = await authProvider.updateProfile(newName);
+                  if (success && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Profile updated successfully')),
+                    );
+                  } else if (context.mounted &&
+                      authProvider.errorMessage != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(authProvider.errorMessage!)),
+                    );
+                  }
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

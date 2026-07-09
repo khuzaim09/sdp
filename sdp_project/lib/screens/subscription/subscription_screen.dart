@@ -185,7 +185,21 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             const SizedBox(height: 20),
             CustomButton(
               text: 'Upgrade Now',
-              onPressed: () {},
+              onPressed: () async {
+                final success = await Provider.of<AuthProvider>(context, listen: false)
+                    .upgradeSubscription(plan.id);
+                if (success && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Successfully upgraded to ${plan.name}!')),
+                  );
+                  Navigator.pop(context); // Go back after successful upgrade
+                } else if (context.mounted) {
+                  final error = Provider.of<AuthProvider>(context, listen: false).errorMessage;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(error ?? 'Failed to upgrade plan.')),
+                  );
+                }
+              },
               isOutlined: !isHighlighted,
             ),
           ],

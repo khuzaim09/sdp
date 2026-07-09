@@ -4,6 +4,7 @@ import '../core/theme.dart';
 import '../providers/auth_provider.dart';
 import '../providers/language_provider.dart';
 import '../screens/auth/subscription_selection_screen.dart';
+import '../screens/subscription/subscription_screen.dart';
 import 'custom_button.dart';
 
 class LockedFeatureWrapper extends StatelessWidget {
@@ -76,7 +77,7 @@ class LockedFeatureWrapper extends StatelessWidget {
                     CustomButton(
                       text: tr('get_started'),
                       onPressed: () {
-                        // Navigate to plan selection or show upgrade options
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const SubscriptionScreen()));
                       },
                     ),
                   ],

@@ -43,9 +43,21 @@ class SettingsScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            user.name,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                          Row(
+                            children: [
+                              Text(
+                                user.name,
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit, size: 20, color: AppTheme.primaryColor),
+                                padding: const EdgeInsets.only(left: 8),
+                                constraints: const BoxConstraints(),
+                                onPressed: () {
+                                  _showEditProfileDialog(context, user.name, authProvider);
+                                },
+                              ),
+                            ],
                           ),
                           Text(
                             user.email,
@@ -57,6 +69,19 @@ class SettingsScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 32),
+              ],
+
+              if (user != null) ...[
+                ListTile(
+                  leading: const Icon(Icons.person_outline),
+                  title: const Text('Edit Profile'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    _showEditProfileDialog(context, user.name, authProvider);
+                  },
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const Divider(),
               ],
 
               // Language Setting
@@ -85,14 +110,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               const Divider(),
               
-              // Notifications
-              ListTile(
-                title: const Text('Notifications'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {},
-                contentPadding: EdgeInsets.zero,
-              ),
-              const Divider(),
+
               
               // Privacy Policy
               ListTile(
@@ -112,6 +130,51 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  void _showEditProfileDialog(BuildContext context, String currentName, AuthProvider authProvider) {
+    final nameController = TextEditingController(text: currentName);
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Profile'),
+          content: TextField(
+            controller: nameController,
+            decoration: const InputDecoration(labelText: 'Name'),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final newName = nameController.text.trim();
+                if (newName.isNotEmpty && newName != currentName) {
+                  Navigator.pop(context);
+                  final success = await authProvider.updateProfile(newName);
+                  if (success && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Profile updated successfully')),
+                    );
+                  } else if (context.mounted && authProvider.errorMessage != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(authProvider.errorMessage!)),
+                    );
+                  }
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
         );
       },
     );

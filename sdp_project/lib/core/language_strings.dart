@@ -347,8 +347,8 @@ class AppStrings {
       AppLanguage.urdu: 'سوشل میڈیا آٹومیشن',
     },
     'website_builder': {
-      AppLanguage.english: 'Website Builder',
-      AppLanguage.urdu: 'ویب سائٹ بلڈر',
+      AppLanguage.english: 'Flayer',
+      AppLanguage.urdu: 'فلائیر',
     },
     'chat_history': {
       AppLanguage.english: 'Chat History',
@@ -467,12 +467,12 @@ class AppStrings {
       AppLanguage.urdu: 'مارکیٹنگ ٹولز',
     },
     'ai_website_generation': {
-      AppLanguage.english: 'AI Website Generation',
-      AppLanguage.urdu: 'اے آئی ویب سائٹ جنریشن',
+      AppLanguage.english: 'AI Flayer Generation',
+      AppLanguage.urdu: 'اے آئی فلائیر جنریشن',
     },
     'ai_generation_description': {
-      AppLanguage.english: 'Let our AI generate a complete landing page based on your brand profile in seconds.',
-      AppLanguage.urdu: 'اے آئی کو سیکنڈوں میں اپنے برانڈ پروفائل کی بنیاد پر ایک مکمل لینڈنگ پیج بنانے دیں۔',
+      AppLanguage.english: 'Let our AI generate a complete flayer based on your brand profile in seconds.',
+      AppLanguage.urdu: 'اے آئی کو سیکنڈوں میں اپنے برانڈ پروفائل کی بنیاد پر ایک مکمل فلائیر بنانے دیں۔',
     },
     'generate_with_ai': {
       AppLanguage.english: 'Generate with AI',

@@ -8,7 +8,7 @@ import '../../models/user_model.dart';
 import '../../models/subscription_plan.dart';
 import '../branding/branding_screen.dart';
 import '../social/social_screen.dart';
-import '../website/website_screen.dart';
+import '../builder/website_builder_screen.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
@@ -176,7 +176,7 @@ class HomeTab extends StatelessWidget {
                     _buildToolCard(
                       context,
                       title: tr('website_builder'),
-                      icon: Icons.web_outlined,
+                      icon: Icons.article_outlined,
                       colors: [
                         const Color(0xFF009688),
                         const Color(0xFF4DB6AC)
@@ -185,7 +185,7 @@ class HomeTab extends StatelessWidget {
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const WebsiteScreen())),
+                              builder: (_) => const WebsiteBuilderScreen())),
                     ),
                     _buildToolCard(
                       context,

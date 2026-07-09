@@ -71,10 +71,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               actions: [
                 const LanguageToggle(),
                 const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.notifications_outlined),
-                  onPressed: () {},
-                ),
                 const SizedBox(width: 12),
               ],
             ),

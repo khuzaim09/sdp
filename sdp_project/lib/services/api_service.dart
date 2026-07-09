@@ -5,9 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Platform;
 
 class ApiService {
-  // Use a public tunnel to completely bypass local network restrictions!
+  // Use 10.0.2.2 for Android emulator to connect to local backend
   static String get baseUrl {
-    return 'https://sjhpb-153-117-47-57.free.pinggy.net';
+    return 'http://10.0.2.2:3000';
   }
 
   static Future<String?> _getToken() async {
